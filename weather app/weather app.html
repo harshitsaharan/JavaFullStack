@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #4a90e2, #9013fe);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      color: #fff;
+    }
+
+    .weather-app {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      width: 350px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+
+    .search-box {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .search-box input {
+      width: 70%;
+      padding: 10px;
+      border: none;
+      border-radius: 8px 0 0 8px;
+      outline: none;
+      font-size: 1em;
+    }
+
+    .search-box button {
+      padding: 10px 15px;
+      border: none;
+      background-color: #ffcc00;
+      color: #000;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      transition: background 0.3s;
+      font-weight: bold;
+    }
+
+    .search-box button:hover {
+      background-color: #ffd633;
+    }
+
+    .weather-result {
+      display: none;
+      margin-top: 20px;
+    }
+
+    .weather-result img {
+      width: 80px;
+      height: 80px;
+    }
+
+    .temp {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .condition {
+      font-size: 1.2em;
+      text-transform: capitalize;
+    }
+
+    .error {
+      color: #ff6b6b;
+      margin-top: 10px;
+      display: none;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="weather-app">
+    <h1>🌤 Weather App</h1>
+    <div class="search-box">
+      <input type="text" id="cityInput" placeholder="Enter city name..." />
+      <button id="searchBtn">Search</button>
+    </div>
+    <div class="error" id="error">City not found. Please try again!</div>
+
+    <div class="weather-result" id="weatherResult">
+      <h2 id="cityName"></h2>
+      <img id="weatherIcon" alt="Weather icon" />
+      <div class="temp" id="temperature"></div>
+      <div class="condition" id="condition"></div>
+    </div>
+  </div>
+
+  <script>
+    const apiBase = "http://api.weatherapi.com/v1/current.json?key=022b3611a6624b209b0154044250311&q=";
+    const weatherResult = document.getElementById("weatherResult");
+    const errorDiv = document.getElementById("error");
+
+    document.getElementById("searchBtn").addEventListener("click", () => {
+      const city = document.getElementById("cityInput").value.trim();
+      if (city) {
+        getWeather(city);
+      }
+    });
+
+    document.getElementById("cityInput").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        const city = e.target.value.trim();
+        if (city) getWeather(city);
+      }
+    });
+
+    async function getWeather(city) {
+      try {
+        const response = await fetch(`${apiBase}${city}&aqi=yes`);
+        if (!response.ok) throw new Error("City not found");
+        const data = await response.json();
+        showWeather(data);
+      } catch (err) {
+        errorDiv.style.display = "block";
+        weatherResult.style.display = "none";
+      }
+    }
+
+    function showWeather(data) {
+      document.getElementById("cityName").textContent = `${data.location.name}, ${data.location.country}`;
+      document.getElementById("temperature").textContent = `${data.current.temp_c}°C`;
+      document.getElementById("condition").textContent = data.current.condition.text;
+      document.getElementById("weatherIcon").src = `https:${data.current.condition.icon}`;
+      weatherResult.style.display = "block";
+      errorDiv.style.display = "none";
+    }
+  </script>
+</body>
+</html>
